@@ -1,6 +1,6 @@
 class PromptEngine:
     @staticmethod
-    def generate_project(known_tech=None, unknown_tech=None, topics=None):
+    def prompt_project(known_tech=None, unknown_tech=None, topics=None):
         tech_list = ', '.join(known_tech) if known_tech else 'None specified'
         unknown_tech_list = ', '.join(unknown_tech) if unknown_tech else 'None specified'
         topics = ', '.join(topics) if topics else 'Pick a random topic'
