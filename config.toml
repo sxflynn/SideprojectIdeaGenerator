@@ -1,0 +1,16 @@
+[JanAi]
+url = "http://localhost:1337/v1"
+models = ["tinyllama-1.1b", "phi-2-3b"]
+
+[OpenAI]
+url = "https://api.openai.com/v1"
+models = ["gpt-3.5-turbo"]
+
+[AnyScale]
+url = "https://api.endpoints.anyscale.com/v1"
+models = ["mistralai/Mistral-7B-Instruct-v0.1", "meta-llama/Llama-2-7b-chat-hf"]
+
+# Not OpenAI compatible
+# [Ollama]
+# url = "http://localhost:11434/api/chat"
+# models = ["tinyllama", "phi"]
