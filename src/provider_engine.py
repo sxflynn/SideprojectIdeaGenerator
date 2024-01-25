@@ -1,5 +1,7 @@
 from openai import OpenAI
+from pydantic import BaseModel
 from src.config import Config
+
 
 class LLMProvider:
     def __init__(self, config: Config):
