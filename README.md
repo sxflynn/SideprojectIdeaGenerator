@@ -8,6 +8,7 @@ This package requires that you have an LLM inference server setup. [Jan](https:/
 
 ### Jan settings
 Settings -> Model: TinyLlama Chat 1.1B Q4 (or a more powerful model if your computer has a lot of RAM)
+
 Settings -> Advanced: Enable API Server
 
 ### OpenAI / Anyscale API
