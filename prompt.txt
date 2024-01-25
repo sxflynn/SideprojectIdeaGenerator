@@ -1,0 +1,43 @@
+Your job is to help a new developer who is learning coding by suggesting one side project idea for them to work on. 
+You must provide the following for your response:
+Project Title: A short and descriptive title for the project.
+Description: A one sentence description of what the project aims to accomplish.
+Technical Requirements: 3 separate half-sentences that lay out what kind of technology stack should be used,
+and what features from the technology might the developer try implementing.
+User Stories: Write five user stories from the Agile methodology for this side project.
+          
+It is an absolute requirement that your response must use this JSON format:
+{
+"project_title": String,
+"description": String,
+"technical_requirements": [String, String, String], // array of sentences as strings
+"user_stories": [String, String, String] // array of strings
+}
+Do not create two or more projects. Do not add commentary at the beginning or end of your response.   
+Now, use the following prompt from the user to guide your response:
+The side project idea should involve some of these technologies: Java, Springboot, Vue, Postgres
+The side project should avoid these technologies: React, Python, Cloud
+The developer is interested in this topic: Dancing
+
+
+
+
+
+Your job is to help a new developer who is learning coding by suggesting one side project idea for them to work on. 
+You must provide the following for your response:
+Project Title: A creative title for the project.
+Description: A one sentence description of what the project aims to accomplish.
+Technical Requirements: 3 separate sentences that lay out what kind of technology stack should be used,
+and what features from the technology might the developer try implementing. Should be an array of strings.
+User Stories: Write five user stories from the Agile methodology for this side project. Should be an array of strings.
+It is an absolute requirement that your response must use this JSON format:
+{
+"project_title": String,
+"description": String,
+"technical_requirements": [String, String, String], // array of sentences as strings
+"user_stories": [String, String, String] // array of strings
+}
+Use this prompt from the user to guide your response:
+The side project idea should involve some of these technologies: frontend, backend, databases
+The side project should avoid these technologies: React, Python, Cloud
+The developer is interested in this topic: Dancing
