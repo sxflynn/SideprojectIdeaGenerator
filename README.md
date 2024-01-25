@@ -4,16 +4,17 @@ Helps software development students generate project ideas based on their skills
  - React front end with Mantine component library
 
 ## LLM Setup
-This package requires that you have an LLM inference server setup. [Jan.ai](https://jan.ai) is a recommended desktop GUI application that runs an LLM inference with OpenAI API compatible server. Another application that does this is **GPT4All** although you'd have to change the port number in the code to make it work.
+This package requires that you have an LLM inference server setup. [Jan](https://jan.ai) is a recommended desktop GUI application that runs an LLM inference with OpenAI API compatible server on your computer. Ollama is another popular option, but its API is not directly compatible with the OpenAI python library and is therefore not supported at this time.
 
-Model: TinyLlama Chat 1.1B Q4
-About: TinyLlama is a tiny model with only 1.1B. It's a good model for less powerful computers.
+### Jan settings
+Settings -> Model: TinyLlama Chat 1.1B Q4 (or a more powerful model if your computer has a lot of RAM)
+Settings -> Advanced: Enable API Server
 
-### OpenAI API
-You can run this package using OpenAI's servers, but you will need to obtain an API key and add it in the source code. Environment variables have not yet been implemented.
+### OpenAI / Anyscale API
+You can run this package using OpenAI's or AnyScale's servers, but you will need to obtain an API key and add it in your `.env` file.
 
 ## Installation
-1. Install Python version 3.11
+1. Install Python version >= 3.11
 1. `git clone` the repo and `cd` into the project directory
 2. Set up a virtual environment
 ```Shell
@@ -27,7 +28,16 @@ source .venv/bin/activate
 ```Shell
 pip install -r requirements.txt
 ```
-6. Execute the CLI entrypoint
+6. (*Optional*) Rename your `.env` file if you plan on using cloud LLMs
+```Shell
+mv .env.example .env
+```
+7. (*Optional*) Add your OpenAI/AnyScale keys to your `.env` file
+8. (*Optional*) Open `main_cli.py` and switch your LLM provider from Jan to another listed in the `config.toml` file.
+```Python
+config = Config("JanAi") # Switch "JanAi" to "OpenAI" etc
+```
+8. Execute the CLI entrypoint
 ```Shell
 python3 main_cli.py
 ```
