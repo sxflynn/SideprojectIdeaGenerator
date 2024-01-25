@@ -1,10 +1,11 @@
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
-from src.config import TinyLlamaJanAi
+from src.config import Config
 
 
 def run_prompt():
-    provider = LLMProvider(TinyLlamaJanAi)
+    config = Config("JanAi")
+    provider = LLMProvider(config)
     client = Client(provider)
     unknown_tech = ["Backend", "databases", "Java"]
     known_tech = ["Javascript", "React", "Typescript", "Vue"]
