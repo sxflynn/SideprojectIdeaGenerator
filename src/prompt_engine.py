@@ -1,34 +1,48 @@
 class PromptEngine:
-    @staticmethod
-    def prompt_project(known_tech=None, unknown_tech=None, topics=None):
-        tech_list = ', '.join(known_tech) if known_tech else 'None specified'
-        unknown_tech_list = ', '.join(unknown_tech) if unknown_tech else 'None specified'
-        topics = ', '.join(topics) if topics else 'Pick a random topic'
+    def __init__(self, user_input):
+        self.inputs = {
+            'tech_list': {
+                'data': user_input.known_tech,
+                'fallback': 'Frequently used full stack frameworks'
+            },
+            'unknown_tech_list': {
+                'data': user_input.unknown_tech,
+                'fallback': 'Rarely used or difficult to understand technologies'
+            },
+            'topics': {
+                'data': user_input.topics,
+                'fallback': 'Pick a random topic'
+            }
+        }
+        self.tech_list = self.unpack_list('tech_list')
+        self.unknown_tech_list = self.unpack_list('unknown_tech_list')
+        self.topics = self.unpack_list('topics')
+        
+    def unpack_list(self, key):
+        data = self.inputs[key]['data']
+        fallback = self.inputs[key]['fallback']
+        return ', '.join(data) if data else fallback
+    
+    def create_prompt(self):
         return f"""
-          Your job is to help a new developer who is learning coding by suggesting one side project idea for them to work on. 
-          You must provide the following for your response:
-          Project Title: A short and descriptive title for the project.
-          Description: A one sentence description of what the project aims to accomplish.
-          Technical Requirements: 3 separate half-sentences that lay out what kind of technology stack should be used,
-          and what features from the technology might the developer try implementing.
-          User Stories: Write five user stories from the Agile methodology for this side project.
-          
-          It is an absolute requirement that your response must use this JSON format:
-          {{
-          "project_title": String,
-          "description": String,
-          "technical_requirements": [String, String, String] // array of strings
-          "user_stories": [String, String, String] // array of strings
-          }}
-          Format your response as a JSON object using this schema. Only create one project. Do not create two or more projects.
-          If your response doesn't follow this schema, then try again from the beginning to get it right.
-          Do not say anything else or provide commentary, just respond with a JSON object.
-          
-          Use this prompt from the user to guide your response:
-          The side project idea should involve some of these technologies: {tech_list}
-          The side project should avoid these technologies: {unknown_tech_list}
-          The developer is interested in these topics: 
+          Suggest one side project idea for a new developer to work on. 
+          The side project idea should involve some of these technologies: {self.tech_list}
+          The side project should avoid these technologies: {self.unknown_tech_list}
+          The developer is interested in these topics: {self.topics}
           """
 
-    
-          
+    def create_system_message(self):
+        return f"""
+            When responding to this prompt, generate a single side project idea for a new full stack developer. 
+            Ensure the idea utilizes these technologies ({self.tech_list}) and avoids these technologies ({self.unknown_tech_list}), aligning with the developer's interests in {self.topics}.
+            Your response must be formatted as a JSON object following the provided schema, containing a project title, a concise description, three technical requirements (one sentence each), and five user stories based on Agile methodology.
+            Adhere strictly to this format: 
+            {{
+                "project_title": "String",
+                "description": "String",
+                "technical_requirements": ["String", "String", "String"], 
+                "user_stories": ["String", "String", "String", "String", "String"]
+            }}
+            Only one project idea is required. Responses not following this schema should be corrected and resubmitted. Do not include additional commentary.
+            Do not say anything else or provide commentary beyond the JSON, just respond with a JSON object.
+            """
