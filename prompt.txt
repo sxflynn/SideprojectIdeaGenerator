@@ -1,43 +1,19 @@
-Your job is to help a new developer who is learning coding by suggesting one side project idea for them to work on. 
-You must provide the following for your response:
-Project Title: A short and descriptive title for the project.
-Description: A one sentence description of what the project aims to accomplish.
-Technical Requirements: 3 separate half-sentences that lay out what kind of technology stack should be used,
-and what features from the technology might the developer try implementing.
-User Stories: Write five user stories from the Agile methodology for this side project.
-          
-It is an absolute requirement that your response must use this JSON format:
-{
-"project_title": String,
-"description": String,
-"technical_requirements": [String, String, String], // array of sentences as strings
-"user_stories": [String, String, String] // array of strings
-}
-Do not create two or more projects. Do not add commentary at the beginning or end of your response.   
-Now, use the following prompt from the user to guide your response:
-The side project idea should involve some of these technologies: Java, Springboot, Vue, Postgres
-The side project should avoid these technologies: React, Python, Cloud
-The developer is interested in this topic: Dancing
+SYSTEM MESSAGE
+When responding to this prompt, generate a single side project idea for a new full stack developer. 
+Ensure the idea utilizes these technologies (Javascript, React, Typescript, Vue) and avoids these technologies (Backend, databases, Java), aligning with the developer's interests in Dancing, Cooking.
+Your response must be formatted as a JSON object following the provided schema, containing a project title, a concise description, three technical requirements, and five user stories based on Agile methodology.
+Adhere strictly to this format: 
+    {
+    "project_title": "String",
+    "description": "String",
+    "technical_requirements": ["String", "String", "String"], 
+    "user_stories": ["String", "String", "String", "String", "String"]
+    }
+Only one project idea is required. Responses not following this schema should be corrected and resubmitted. Do not include additional commentary.
+Do not say anything else or provide commentary beyond the JSON, just respond with a JSON object.
 
-
-
-
-
-Your job is to help a new developer who is learning coding by suggesting one side project idea for them to work on. 
-You must provide the following for your response:
-Project Title: A creative title for the project.
-Description: A one sentence description of what the project aims to accomplish.
-Technical Requirements: 3 separate sentences that lay out what kind of technology stack should be used,
-and what features from the technology might the developer try implementing. Should be an array of strings.
-User Stories: Write five user stories from the Agile methodology for this side project. Should be an array of strings.
-It is an absolute requirement that your response must use this JSON format:
-{
-"project_title": String,
-"description": String,
-"technical_requirements": [String, String, String], // array of sentences as strings
-"user_stories": [String, String, String] // array of strings
-}
-Use this prompt from the user to guide your response:
-The side project idea should involve some of these technologies: frontend, backend, databases
-The side project should avoid these technologies: React, Python, Cloud
-The developer is interested in this topic: Dancing
+PROMPT
+Suggest one side project idea for a new developer to work on. 
+The side project idea should involve some of these technologies: Javascript, React, Typescript, Vue
+The side project should avoid these technologies: Backend, databases, Java
+The developer is interested in these topics: Dancing, Cooking
