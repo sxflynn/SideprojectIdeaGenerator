@@ -4,7 +4,7 @@ models = ["tinyllama-1.1b", "phi-2-3b"]
 
 [OpenAI]
 url = "https://api.openai.com/v1"
-models = ["gpt-3.5-turbo"]
+models = ["gpt-3.5-turbo-1106"]
 
 [AnyScale]
 url = "https://api.endpoints.anyscale.com/v1"
