@@ -1,16 +1,17 @@
-import json
-from pydantic import BaseModel
 from typing import List
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
 from src.config import Config
-from src.response_validator import ProjectResponse, validate_response
-
-class TechList(BaseModel):
-    unknown_tech: List[str]
-    known_tech: List[str]
-    topics: List[str]
+from src.response_validator import ProjectResponse, TechList, validate_response
     
+# simulating incoming POST request
+post_request = {
+        "unknown_tech": ["Backend", "databases", "Java"],
+        "known_tech": ["Javascript", "React", "Typescript", "Vue"],
+        "topics": ["Dancing", "Cooking"]
+        }
+
+#future FastAPI POST endpoint /prompt
 def run_prompt(user_input:TechList) -> ProjectResponse:
     config = Config("OpenAI")
     provider = LLMProvider(config)
@@ -22,11 +23,7 @@ def run_prompt(user_input:TechList) -> ProjectResponse:
     return response_content
 
 def main():
-    user_input = TechList(
-        unknown_tech= ["Backend", "databases", "Java"],
-        known_tech= ["Javascript", "React", "Typescript", "Vue"],
-        topics= ["Dancing", "Cooking"]
-    )
+    user_input = TechList(**post_request)
     response = run_prompt(user_input)
     print(validate_response(response))
 
