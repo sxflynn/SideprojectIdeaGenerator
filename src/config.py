@@ -1,10 +1,7 @@
 from dotenv import load_dotenv
 import tomllib, pathlib, os
 
-load_dotenv()
-
 def load_config():
-    # Construct the path to the config.toml file
     root_dir = pathlib.Path(__file__).parent.parent
     config_path = root_dir / 'config.toml'
     with config_path.open(mode="rb") as fp:
@@ -16,6 +13,7 @@ class Config:
         self.config_data = load_config()
         if not self.config_data.get(provider_name):
             raise ValueError(f"{provider_name} is not located in the config.toml file.")
+        load_dotenv()
         provider = self.config_data.get(provider_name,{})
         self.url = provider.get('url','')
         self.key = os.getenv(f'{provider_name.upper()}_API_KEY', 'none') #OpenAI library requires key string
