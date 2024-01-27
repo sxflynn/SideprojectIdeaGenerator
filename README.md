@@ -5,11 +5,21 @@ Helps software development students generate project ideas based on their skills
  - Python/FastAPI for prompt-management and handling to LLM provider server
  - React front end with Mantine component library
 
+## Requirements
+ - At least one of the following:
+   1. Fast computer with > 8GB of RAM to run the offline LLM inference server
+      
+      or
+   1. An API key with one of the supported LLM services (see below)
+
+- Python version 3.11 or greater installed
+
+
 ## LLM Setup
-This package requires that you have an LLM inference server setup. [Jan](https://jan.ai) is a recommended desktop GUI application that runs an LLM inference with OpenAI API compatible server on your computer. Ollama is another popular option, but its API is not directly compatible with the OpenAI python library and is therefore not supported at this time.
+This package requires that you have an LLM inference server setup. [Jan](https://jan.ai) is a recommended desktop GUI application that runs an LLM inference on your computer, no internet connection needed. Ollama is another popular option, but its API is not directly compatible with the OpenAI python library and is therefore not supported at this time.
 
 
-### Jan settings
+### Jan instructions
 > ⚠️ The default model in JanAi, `phi-2-3b`, requires 8GB of RAM and closing all your other apps, otherwise your computer will grind to a halt.
 
 Settings -> Model: choose Phi-2 3B Q8 (requires 8GB of RAM, closed applications, and a fast computer)
