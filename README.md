@@ -19,6 +19,8 @@ Settings -> Advanced: Enable API Server
 ### OpenAI / Anyscale / TogetherAi API
 You can run this package using OpenAI's, AnyScale's, or TogetherAi's servers, but you will need to obtain an API key and add it in your `.env` file. See Step 6 below.
 
+You can get [$25 in free credits with TogetherAi](https://docs.together.ai/docs/get-started), and [$10 in free credits from Anyscale](https://docs.endpoints.anyscale.com/) when you sign up for their services. No payment details needed.
+
 ## Installation
 1. Install Python version >= 3.11
 1. `git clone` the repo and `cd` into the project directory
