@@ -1,6 +1,6 @@
 [JanAi]
 url = "http://localhost:1337/v1"
-models = ["tinyllama-1.1b", "phi-2-3b"]
+models = ["phi-2-3b", "tinyllama-1.1b"]
 
 [OpenAI]
 url = "https://api.openai.com/v1"
@@ -8,7 +8,13 @@ models = ["gpt-3.5-turbo-1106"]
 
 [AnyScale]
 url = "https://api.endpoints.anyscale.com/v1"
-models = ["mistralai/Mistral-7B-Instruct-v0.1", "meta-llama/Llama-2-7b-chat-hf"]
+models = ["meta-llama/Llama-2-7b-chat-hf", "mistralai/Mistral-7B-Instruct-v0.1"]
+# more models at https://docs.endpoints.anyscale.com/category/supported-models
+
+[TogetherAi]
+url = "https://api.together.xyz/v1"
+models = ["mistralai/Mistral-7B-Instruct-v0.1", "codellama/CodeLlama-7b-Instruct-hf"]
+# more models at https://docs.together.ai/docs/inference-models
 
 # Not OpenAI compatible
 # [Ollama]
