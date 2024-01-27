@@ -1,3 +1,5 @@
+> ## 🚧 This project is under active development. Please consider contributing!
+
 # Side Project Idea Generator
 Helps software development students generate project ideas based on their skills and interests. The final version of this product will run on the following stack:
  - Python/FastAPI for prompt-management and handling to LLM provider server
@@ -8,14 +10,14 @@ This package requires that you have an LLM inference server setup. [Jan](https:/
 
 
 ### Jan settings
-> ⚠️ TinyLlama does not output JSON correctly, so you might need a more powerful 7B model.
+> ⚠️ The default model in JanAi, `phi-2-3b`, requires 8GB of RAM and closing all your other apps, otherwise your computer will grind to a halt.
 
-Settings -> Model: TinyLlama Chat 1.1B Q4 (or a more powerful model if your computer has a lot of RAM)
+Settings -> Model: choose Phi-2 3B Q8 (requires 8GB of RAM, closed applications, and a fast computer)
 
 Settings -> Advanced: Enable API Server
 
-### OpenAI / Anyscale API
-You can run this package using OpenAI's or AnyScale's servers, but you will need to obtain an API key and add it in your `.env` file. See Step 6 below.
+### OpenAI / Anyscale / TogetherAi API
+You can run this package using OpenAI's, AnyScale's, or TogetherAi's servers, but you will need to obtain an API key and add it in your `.env` file. See Step 6 below.
 
 ## Installation
 1. Install Python version >= 3.11
@@ -46,10 +48,7 @@ config = Config("JanAi") # Switch "JanAi" to "OpenAI" etc
 python3 main_cli.py
 ```
 
-# Contributing
-Anyone is welcome to contribute bug fixes and ideas as an issue. Unless it's a quick fix or a documentation enhancement, please report your idea as an issue before submitting a PR.
 
-# 🚧 This project is under active development
 
 ## API Endpoints
 `POST` `/prompt`
@@ -82,19 +81,27 @@ example response:
 }
 ```
 
-## Todo list
-### Backend
+# Todo list
+### LLM Service
 - [x] Build skeletal code for abstracting LLM providers and clients from OpenAI implementation 
 - [x] Add multiple LLM API urls and models
 - [x] Add Pydantic models and validation
 - [x] Create toml file to store endpoint configs
 - [x] Refactor `main_cli.py` to emulate a FastAPI entrypoint
-- [ ] Add Pydantic error handling and API retry logic
+- [x] Add Pydantic error handling
+- [ ] Add retry logic for failed validation
 - [ ] Convert `main_cli.py` to FastAPI `main.py`
 - [ ] Add a mocking capability to ease frontend development
+
+### Database
+- [ ] Create caching schema
 
 ### Frontend
 - [ ] Create blank React project with Vite
 - [ ] Build barebones app shell with Mantine
 - [ ] Create form elements with Mantine/Forms
 - [ ] Create form elements with Mantine/Forms
+
+
+# Contributing
+Anyone is welcome to contribute bug fixes and ideas as an issue. Unless it's a quick fix or a documentation enhancement, please report your idea as an issue before submitting a PR.
