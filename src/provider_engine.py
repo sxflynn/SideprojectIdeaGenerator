@@ -15,7 +15,7 @@ class Client:
         base_url=provider.url
         )
         
-    def prompt(self, prompt_text: str, system_message:str, full_response=False, json_mode=False):
+    def prompt(self, prompt_text: str, system_message:str, full_response=False, json_mode=False, streaming = False):
         request_args = {
             "model": self.provider.model,
             "messages": [
@@ -26,6 +26,8 @@ class Client:
         }
         if json_mode:
             request_args["response_format"] = {"type": "json_object"}
+        if streaming:
+            request_args["stream"] = True;
         # if streaming:
         #     pass
         response = self.client.chat.completions.create(**request_args)
