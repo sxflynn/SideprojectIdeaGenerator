@@ -52,7 +52,7 @@ class PromptEngine:
             When responding to this prompt, generate a single side project idea for a new full stack web developer. 
             Ensure the idea utilizes these technologies ({self.tech_list}) and avoids these technologies ({self.unknown_tech_list}), aligning with the developer's interests in {self.topics}.
             Your response must contain each of the following on a new line: a project title, a concise description, three sentences describing what the technical requirements should be and what technology features should be used, and five user stories based on Agile methodology (but don't mention acceptance criteria).
-            Do not provide extra details, so for example do not write more than three sentences for the technical requirements, more than 5 user stories, etc.
+            If the user mentions a technology that you don't know anything about, do not try to use that technology in a response. Do not provide extra details, so for example do not write more than three sentences for the technical requirements, more than 5 user stories, etc.
             You must strictly adhere to this format: 
             
             Project Title: Give a creative and high quality title for the project
