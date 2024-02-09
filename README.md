@@ -63,7 +63,18 @@ python3 main_cli.py
 ```Shell
 python3 uvicorn main:app --reload
 ```
-
+10. Start the web service
+```
+cd frontend
+```
+Install web dependencies
+```
+npm install
+```
+Start the web server
+```
+npm run dev
+```
 
 
 
@@ -124,10 +135,13 @@ Example JSON response:
 - [ ] Create caching schema
 
 ### Frontend
-- [ ] Create blank React project with Vite
+- [x] Create blank React project with Vite
 - [ ] Build barebones app shell with Mantine
 - [ ] Create form elements with Mantine/Forms
-- [ ] Create form elements with Mantine/Forms
+- [ ] Implement fetch to Uvicorn API
+
+### Infrastructure
+- [ ] Dockerize the project
 
 
 # Contributing
