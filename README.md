@@ -51,21 +51,35 @@ pip install -r requirements.txt
 mv .env.example .env
 ```
 7. (*Optional*) Add your OpenAI/AnyScale keys to your `.env` file
-8. (*Optional*) Open `main_cli.py` and switch your LLM provider from Jan to another listed in the `config.toml` file.
+8. (*Optional*) Open `main_cli.py` or `main.py` and switch your LLM provider from Jan to another listed in the `config.toml` file.
 ```Python
 config = Config("JanAi") # Switch "JanAi" to "OpenAI" etc
 ```
-8. Execute the CLI entrypoint
+8. (*Optional*) To use a terminal command line, execute the CLI entrypoint
 ```Shell
 python3 main_cli.py
 ```
+9. Start the FastAPI endpoint
+```Shell
+python3 uvicorn main:app --reload
+```
+
 
 
 
 ## API Endpoints
-`POST` `/prompt`
+Use a tool like [Postman](https://www.postman.com) to test the endpoints.
 
-input: 
+```
+http://127.0.0.1:8000/prompt
+```
+
+If you are developing the frontend and need a mocked response to avoid pinging an LLM inference server, use the test endpoint.
+```
+http://127.0.0.1:8000/test
+```
+
+JSON input: 
 ```json
 {
     "unknown_tech": ["Backend", "databases", "Java"],
@@ -73,7 +87,7 @@ input:
     "topics": ["Dancing", "Cooking"]
 }
 ```
-example response:
+Example JSON response:
 ```json
 {
     "project_title": "Dance Recipe App",
@@ -102,8 +116,9 @@ example response:
 - [x] Refactor `main_cli.py` to emulate a FastAPI entrypoint
 - [x] Add Pydantic error handling
 - [ ] Add retry logic for failed validation
-- [ ] Convert `main_cli.py` to FastAPI `main.py`
-- [ ] Add a mocking capability to ease frontend development
+- [x] Convert `main_cli.py` to FastAPI `main.py`
+- [ ] Add streaming support
+- [x] Add a mocking capability to ease frontend development
 
 ### Database
 - [ ] Create caching schema
