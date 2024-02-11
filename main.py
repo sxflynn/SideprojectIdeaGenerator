@@ -41,3 +41,12 @@ async def healthcheck(user_input:TechList) -> ProjectResponse:
 }
     project_response = ProjectResponse(**mock_response)   
     return project_response
+
+
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+)
