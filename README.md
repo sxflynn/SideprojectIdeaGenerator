@@ -61,7 +61,7 @@ python3 main_cli.py
 ```
 9. Start the FastAPI endpoint
 ```Shell
-python3 uvicorn main:app --reload
+uvicorn main:app --reload
 ```
 10. Start the web service
 ```
@@ -136,12 +136,14 @@ Example JSON response:
 
 ### Frontend
 - [x] Create blank React project with Vite
-- [ ] Build barebones app shell with Mantine
-- [ ] Create form elements with Mantine/Forms
-- [ ] Implement fetch to Uvicorn API
+- [x] Build barebones app shell with Mantine
+- [x] Create form elements with Mantine/Forms
+- [ ] Create list of technologies/topics to choose from
+- [x] Implement fetch to Uvicorn API
 
 ### Infrastructure
 - [ ] Dockerize the project
+- [ ] Deploy to Cloudflare to `sxflynn.net` subdomain
 
 
 # Contributing
