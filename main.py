@@ -41,9 +41,11 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
             system_message = prompt_engine.create_system_message(json=False)
             response_content = client.prompt(user_prompt, system_message, full_response=False, json_mode=False)
             parsed_response: ProjectResponse = validate_response(response_content)
+            print(parsed_response)
             return parsed_response
         except pydantic.ValidationError as e:
             attempts += 1
+            print("attempt number ", attempts)
             if attempts == max_attempts:
                 raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
