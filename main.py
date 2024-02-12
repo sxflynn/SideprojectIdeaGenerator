@@ -1,6 +1,8 @@
 from typing import List
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import ValidationError
+import pydantic
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
 from src.config import Config
@@ -10,18 +12,29 @@ app = FastAPI()
 
 @app.post("/prompt")
 async def run_prompt(user_input:TechList) -> ProjectResponse:
-    config = Config("TogetherAi")
+    config = Config("AnyScale")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
     system_message = prompt_engine.create_system_message(json=False)
     user_prompt = prompt_engine.create_prompt()
-    response_content = client.prompt(user_prompt, system_message, full_response=False, json_mode=False)
-    parsed_response:ProjectResponse = validate_response(response_content)
-    return parsed_response
+    attempts = 0
+    max_attempts = 3
+    while attempts < max_attempts:
+        try:
+            system_message = prompt_engine.create_system_message(json=False)
+            response_content = client.prompt(user_prompt, system_message, full_response=False, json_mode=False)
+            parsed_response: ProjectResponse = validate_response(response_content)
+            return parsed_response
+        except pydantic.ValidationError as e:
+            attempts += 1
+            if attempts == max_attempts:
+                raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="An error occurred while processing the prompt.")
 
 @app.post("/test")
-async def healthcheck(user_input:TechList) -> ProjectResponse:
+async def test(user_input:TechList) -> ProjectResponse:
     # Raw JSON data
     mock_response = {
     "project_title": "Dance Recipe App",
