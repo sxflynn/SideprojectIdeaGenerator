@@ -1,4 +1,5 @@
-import { Box, Button, MultiSelect } from "@mantine/core";
+import { useState } from 'react';
+import { Box, Button, Group, MultiSelect } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { ProjectResponse } from "./ProjectDisplay";
 import {
@@ -7,6 +8,9 @@ import {
   programming_languages,
   server_side_frameworks,
 } from "./techlist";
+import { Error } from './Error'
+import { Loading } from './Loading';
+
 
 type TechList = {
   unknown_tech: string[];
@@ -54,6 +58,10 @@ type FormProps = {
 };
 
 export function Form({ onFormSubmit }: FormProps) {
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState<null | string>(null);
+
   const form = useForm<TechList>({
     initialValues: {
       unknown_tech: [],
@@ -67,6 +75,7 @@ export function Form({ onFormSubmit }: FormProps) {
   });
 
   const handleSubmit = async (values: TechList) => {
+    setLoading(true);
     const formattedKnownTech = values.known_tech.map(selectedValue => {
       const option = allOptions.find(option => option.value === selectedValue);
       return `${selectedValue} ${option?.category}`;
@@ -93,14 +102,22 @@ export function Form({ onFormSubmit }: FormProps) {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.status === 200){
+        const data: ProjectResponse = await response.json();
+        onFormSubmit(data);
+      } else if (response.status === 429){
+        setError("You've exceeded the rate limit. Please try again in a few minutes.")
+      } else {
+        setError('There was an error connecting to the AI server.')
       }
 
-      const data: ProjectResponse = await response.json();
-      onFormSubmit(data);
+
     } catch (error) {
+
       console.error("Error:", error);
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,7 +143,11 @@ export function Form({ onFormSubmit }: FormProps) {
           searchable
           {...form.getInputProps("topics")}
         />
-        <Button type="submit">Submit</Button>
+        <Group>
+          <Button type="submit" disabled={loading}>Submit</Button>
+          {loading && <Loading/>}
+        </Group>
+        {error && <Error error={error} onDismiss={() => setError(null)} />}
       </form>
     </Box>
   );
