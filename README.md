@@ -76,8 +76,6 @@ Start the web server
 npm run dev
 ```
 
-
-
 ## API Endpoints
 Use a tool like [Postman](https://www.postman.com) to test the endpoints.
 
@@ -130,6 +128,7 @@ Example JSON response:
 - [x] Convert `main_cli.py` to FastAPI `main.py`
 - [ ] Add streaming support
 - [x] Add a mocking capability to ease frontend development
+- [x] Add rate limiting middleware
 
 ### Database
 - [ ] Create caching schema
@@ -144,7 +143,6 @@ Example JSON response:
 ### Infrastructure
 - [ ] Dockerize the project
 - [ ] Deploy to Cloudflare to `sxflynn.net` subdomain
-
 
 # Contributing
 Anyone is welcome to contribute bug fixes and ideas as an issue. Unless it's a quick fix or a documentation enhancement, please report your idea as an issue before submitting a PR.
