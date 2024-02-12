@@ -1,18 +1,34 @@
+import os
 from typing import List
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pydantic import ValidationError
 import pydantic
+from dotenv import load_dotenv
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
 from src.config import Config
 from src.response_validator import ProjectResponse, TechList, validate_response
 
+
+load_dotenv()
+dev_mode = os.getenv("DEV_MODE", "false").lower() == "true"
+limiter_enabled = not dev_mode
+
+limiter = Limiter(key_func=get_remote_address, enabled=limiter_enabled)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.post("/prompt")
-async def run_prompt(user_input:TechList) -> ProjectResponse:
-    config = Config("AnyScale")
+@limiter.limit("5/minute")
+async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
+    print(user_input)
+    print(request.client)
+    config = Config("JanAi")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
@@ -34,7 +50,8 @@ async def run_prompt(user_input:TechList) -> ProjectResponse:
             raise HTTPException(status_code=500, detail="An error occurred while processing the prompt.")
 
 @app.post("/test")
-async def test(user_input:TechList) -> ProjectResponse:
+@limiter.limit("5/minute")
+async def test(user_input:TechList, request: Request) -> ProjectResponse:
     # Raw JSON data
     mock_response = {
     "project_title": "Dance Recipe App",
