@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Box, Button, Group, MultiSelect } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { ProjectResponse } from "./ProjectDisplay";
@@ -8,9 +8,8 @@ import {
   programming_languages,
   server_side_frameworks,
 } from "./techlist";
-import { Error } from './Error'
-import { Loading } from './Loading';
-
+import { Error } from "./Error";
+import { Loading } from "./Loading";
 
 type TechList = {
   unknown_tech: string[];
@@ -33,25 +32,30 @@ const prepareData = (items: string[], categoryName: string): SelectOption[] =>
 
 const databaseOptions = prepareData(
   database_management_systems,
-  "Database management system"
+  "Database management system",
 );
 
 const jsFrameworkOptions = prepareData(
   javascript_frameworks,
-  "JavaScript framework"
+  "JavaScript framework",
 );
 
 const serverSideFrameworkOptions = prepareData(
   server_side_frameworks,
-  "Server-side framework"
+  "Server-side framework",
 );
 
 const programmingLanguageOptions = prepareData(
   programming_languages,
-  "programming language"
+  "programming language",
 );
 
-const allOptions = [...databaseOptions, ...programmingLanguageOptions, ...jsFrameworkOptions, ...serverSideFrameworkOptions];
+const allOptions = [
+  ...databaseOptions,
+  ...programmingLanguageOptions,
+  ...jsFrameworkOptions,
+  ...serverSideFrameworkOptions,
+];
 
 type FormProps = {
   onFormSubmit: (data: ProjectResponse) => void;
@@ -69,53 +73,64 @@ export function Form({ onFormSubmit }: FormProps) {
       topics: [],
     },
     validate: {
-      known_tech: (value) => (value.length === 0 ? 'Please select at least one technology.' : null),
-      topics: (value) => (value.length === 0 ? 'Please select at least one topic of interest.' : null),
-    }
+      known_tech: (value) =>
+        value.length === 0 ? "Please select at least one technology." : null,
+      topics: (value) =>
+        value.length === 0
+          ? "Please select at least one topic of interest."
+          : null,
+    },
   });
 
   const handleSubmit = async (values: TechList) => {
     setLoading(true);
-    const formattedKnownTech = values.known_tech.map(selectedValue => {
-      const option = allOptions.find(option => option.value === selectedValue);
+    const formattedKnownTech = values.known_tech.map((selectedValue) => {
+      const option = allOptions.find(
+        (option) => option.value === selectedValue,
+      );
       return `${selectedValue} ${option?.category}`;
     });
 
-    const formattedUnknownTech = values.unknown_tech.map(selectedValue => {
-      const option = allOptions.find(option => option.value === selectedValue);
+    const formattedUnknownTech = values.unknown_tech.map((selectedValue) => {
+      const option = allOptions.find(
+        (option) => option.value === selectedValue,
+      );
       return `${selectedValue} ${option?.category}`;
     });
 
     const payload = {
       known_tech: formattedKnownTech,
       unknown_tech: formattedUnknownTech,
-      topics: values.topics
-    }
-      
+      topics: values.topics,
+    };
+
     try {
       console.log(values);
-      const response = await fetch("http://localhost:8000/prompt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      setError(null);
+      const response = await fetch(
+        `${import.meta.env.VITE_LLM_BASE_URL}/prompt`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      });
+      );
 
-      if (response.status === 200){
+      if (response.status === 200) {
         const data: ProjectResponse = await response.json();
         onFormSubmit(data);
-      } else if (response.status === 429){
-        setError("You've exceeded the rate limit. Please try again in a few minutes.")
+      } else if (response.status === 429) {
+        setError(
+          "You've exceeded the rate limit. Please try again in a few minutes.",
+        );
       } else {
-        setError('There was an error connecting to the AI server.')
+        setError("There was an error connecting to the AI server.");
       }
-
-
     } catch (error) {
-
       console.error("Error:", error);
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -125,27 +140,32 @@ export function Form({ onFormSubmit }: FormProps) {
     <Box>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         {/* <TextInput label="Tech you know" {...form.getInputProps("knownTech")} /> */}
-          <MultiSelect pb="xl"
-            label="Tech you know"
-            data={allOptions}
-            searchable
-            {...form.getInputProps("known_tech")}
-          />
-        <MultiSelect pb="xl"
+        <MultiSelect
+          pb="xl"
+          label="Tech you know"
+          data={allOptions}
+          searchable
+          {...form.getInputProps("known_tech")}
+        />
+        <MultiSelect
+          pb="xl"
           label="Tech you don't know"
           data={allOptions}
           searchable
           {...form.getInputProps("unknown_tech")}
         />
-        <MultiSelect pb="xl"
+        <MultiSelect
+          pb="xl"
           label="Topics you like"
           data={["Swimming", "Dancing", "Basketball", "Reading"]}
           searchable
           {...form.getInputProps("topics")}
         />
         <Group>
-          <Button type="submit" disabled={loading}>Submit</Button>
-          {loading && <Loading/>}
+          <Button type="submit" disabled={loading}>
+            Submit
+          </Button>
+          {loading && <Loading />}
         </Group>
         {error && <Error error={error} onDismiss={() => setError(null)} />}
       </form>
