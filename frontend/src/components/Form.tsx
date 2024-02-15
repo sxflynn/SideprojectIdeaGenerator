@@ -155,7 +155,7 @@ export function Form({ onFormSubmit }: FormProps) {
       console.log(values);
       setError(null);
       const response = await fetch(
-        `http://${import.meta.env.VITE_LLM_BASE_URL}/prompt`,
+        `http://gi${import.meta.env.VITE_LLM_BASE_URL}/prompt`,
         {
           method: "POST",
           headers: {

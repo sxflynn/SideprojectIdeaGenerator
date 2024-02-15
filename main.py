@@ -1,4 +1,5 @@
 import os
+import json
 from typing import List
 from fastapi import FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,9 +54,11 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
 
 @app.websocket("/promptstreaming")
 @limiter.limit("5/minute")
-async def run_prompt_streaming(websocket: WebSocket, user_input:TechList):
-    print(user_input)
-    config = Config("TogetherAi")
+async def run_prompt_streaming(websocket: WebSocket):
+    await websocket.accept()
+    data = await websocket.receive_text()
+    user_input = TechList.parse_raw(data)
+    config = Config("OpenAI")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
