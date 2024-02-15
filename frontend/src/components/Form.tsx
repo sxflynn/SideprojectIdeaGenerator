@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button, Group, MultiSelect } from "@mantine/core";
+import { Box, Button, Group, MultiSelect, Switch } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { ProjectResponse } from "./ProjectDisplay";
 import {
@@ -62,9 +62,11 @@ type FormProps = {
 };
 
 export function Form({ onFormSubmit }: FormProps) {
+  const [streaming, setStreaming] = useState(true);
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState<null | string>(null);
+  const [streamingResponses, setStreamingResponses] = useState<ProjectResponse[]>([]);
+
 
   const form = useForm<TechList>({
     initialValues: {
@@ -82,21 +84,66 @@ export function Form({ onFormSubmit }: FormProps) {
     },
   });
 
-  const handleSubmit = async (values: TechList) => {
-    setLoading(true);
-    const formattedKnownTech = values.known_tech.map((selectedValue) => {
-      const option = allOptions.find(
-        (option) => option.value === selectedValue,
-      );
+  const formatTechSelections = (selectedTech: string[], options: SelectOption[]): string[] => {
+    return selectedTech.map((selectedValue) => {
+      const option = options.find((option) => option.value === selectedValue);
       return `${selectedValue} ${option?.category}`;
     });
+  };
 
-    const formattedUnknownTech = values.unknown_tech.map((selectedValue) => {
-      const option = allOptions.find(
-        (option) => option.value === selectedValue,
-      );
-      return `${selectedValue} ${option?.category}`;
-    });
+
+  const handleSubmit = async (values: TechList) => {
+    if (streaming){
+      handleStreamingSubmit(values);
+    } else {
+      handleRegularSubmit(values);
+    }
+  }
+
+  const handleStreamingSubmit = (values: TechList) => {
+    console.log("Streaming mode enabled!")
+    setLoading(true);
+    setError(null);
+    setStreamingResponses([]);
+
+    const formattedKnownTech = formatTechSelections(values.known_tech, allOptions);
+    const formattedUnknownTech = formatTechSelections(values.unknown_tech, allOptions);
+
+    const payload = {
+      known_tech: formattedKnownTech,
+      unknown_tech: formattedUnknownTech,
+      topics: values.topics,
+    };
+
+    const ws = new WebSocket(`ws://${import.meta.env.VITE_LLM_BASE_URL}/promptstreaming`);
+    ws.onopen = () => {
+      ws.send(JSON.stringify(payload));
+    };
+
+    ws.onmessage = (event) => {
+      const newResponse:ProjectResponse = JSON.parse(event.data);
+      setStreamingResponses((prevResponses) => [...prevResponses, newResponse]);
+    }
+
+    ws.onerror = (event) => {
+      setError("WebSocket error, check the console for more details");
+      console.error(event)
+    }
+
+    ws.onclose = () => {
+      setLoading(false);
+      if (streamingResponses.length > 0) {
+        onFormSubmit(streamingResponses[streamingResponses.length - 1]);
+      }
+    }
+
+  }
+
+  const handleRegularSubmit = async (values: TechList) => {
+    setLoading(true);
+    const formattedKnownTech = formatTechSelections(values.known_tech, allOptions);
+    const formattedUnknownTech = formatTechSelections(values.unknown_tech, allOptions);
+
 
     const payload = {
       known_tech: formattedKnownTech,
@@ -108,7 +155,7 @@ export function Form({ onFormSubmit }: FormProps) {
       console.log(values);
       setError(null);
       const response = await fetch(
-        `${import.meta.env.VITE_LLM_BASE_URL}/prompt`,
+        `http://${import.meta.env.VITE_LLM_BASE_URL}/prompt`,
         {
           method: "POST",
           headers: {
@@ -137,6 +184,13 @@ export function Form({ onFormSubmit }: FormProps) {
   };
 
   return (
+  <>
+    <Switch
+      size="md"
+        label="Streaming mode"
+        checked={streaming}
+        onChange={(event) => setStreaming(event.currentTarget.checked)}
+        />
     <Box>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         {/* <TextInput label="Tech you know" {...form.getInputProps("knownTech")} /> */}
@@ -170,5 +224,6 @@ export function Form({ onFormSubmit }: FormProps) {
         {error && <Error error={error} onDismiss={() => setError(null)} />}
       </form>
     </Box>
+    </>
   );
 }
