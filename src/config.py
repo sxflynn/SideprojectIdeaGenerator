@@ -21,7 +21,7 @@ class Config:
         if not self.models:
             raise ValueError(f"No model selected for {provider_name}")
         self.selected_model = self.models[0]
-                
+
     def set_model(self, model_name):
         if model_name in self.models:
             self.selected_model = model_name

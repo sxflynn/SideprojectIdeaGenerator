@@ -28,7 +28,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @limiter.limit("5/minute")
 async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
     print(user_input)
-    config = Config("JanAi")
+    config = Config("TogetherAi")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
