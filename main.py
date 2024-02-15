@@ -1,6 +1,6 @@
 import os
 from typing import List
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
 from src.config import Config
-from src.response_validator import ProjectResponse, TechList, validate_response
+from src.response_validator import ProjectResponse, TechList, parse_project_data, parse_project_data_streaming, validate_response
 
 
 load_dotenv()
@@ -27,7 +27,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @limiter.limit("5/minute")
 async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
     print(user_input)
-    print(request.client)
     config = Config("JanAi")
     provider = LLMProvider(config)
     client = Client(provider)
@@ -38,8 +37,9 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
     max_attempts = 3
     while attempts < max_attempts:
         try:
-            system_message = prompt_engine.create_system_message(json=False)
-            response_content = client.prompt(user_prompt, system_message, full_response=False, json_mode=False)
+            json_mode = False
+            system_message = prompt_engine.create_system_message(json=json_mode)
+            response_content = client.prompt(user_prompt, system_message, full_response=False, json_mode=json_mode)
             parsed_response: ProjectResponse = validate_response(response_content)
             print(parsed_response)
             return parsed_response
@@ -50,6 +50,23 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
                 raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             raise HTTPException(status_code=500, detail="An error occurred while processing the prompt.")
+
+@app.websocket("/promptstreaming")
+@limiter.limit("5/minute")
+async def run_prompt_streaming(websocket: WebSocket, user_input:TechList):
+    print(user_input)
+    config = Config("TogetherAi")
+    provider = LLMProvider(config)
+    client = Client(provider)
+    prompt_engine = PromptEngine(user_input)
+    system_message = prompt_engine.create_system_message(json=False)
+    user_prompt = prompt_engine.create_prompt()
+    response_stream = client.streaming_prompt(user_prompt, system_message, full_response=False, json_mode=False)
+
+    async for chunk in response_stream:
+        async for parsed_response in parse_project_data_streaming([chunk]):
+            await websocket.send_json(parsed_response.dict())
+    await websocket.close()
 
 @app.post("/test")
 @limiter.limit("5/minute")
@@ -71,7 +88,7 @@ async def test(user_input:TechList, request: Request) -> ProjectResponse:
         "As a user, I can track my progress and save my favorite recipes and dance routines for future use."
     ]
 }
-    project_response = ProjectResponse(**mock_response)   
+    project_response = ProjectResponse(**mock_response)
     return project_response
 
 

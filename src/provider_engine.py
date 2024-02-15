@@ -14,8 +14,8 @@ class Client:
         api_key=provider.key,
         base_url=provider.url
         )
-        
-    def prompt(self, prompt_text: str, system_message:str, full_response=False, json_mode=False, streaming = False):
+
+    def prompt(self, prompt_text: str, system_message:str, full_response=False, json_mode=False):
         request_args = {
             "model": self.provider.model,
             "messages": [
@@ -26,12 +26,26 @@ class Client:
         }
         if json_mode:
             request_args["response_format"] = {"type": "json_object"}
-        if streaming:
-            request_args["stream"] = True;
-        # if streaming:
-        #     pass
         response = self.client.chat.completions.create(**request_args)
-        
         if full_response:
             return response
         return response.choices[0].message.content
+
+    def streaming_prompt(self, prompt_text: str, system_message:str, full_response=False, json_mode=False):
+        request_args = {
+            "model": self.provider.model,
+            "messages": [
+                {"role": "system", "content": system_message },
+                {"role": "user", "content": prompt_text}
+            ],
+        "max_tokens": 1024,
+        "stream": True
+        }
+        if json_mode:
+            request_args["response_format"] = {"type": "json_object"}
+        response_stream = self.client.chat.completions.create(**request_args)
+        chunks = (self.extract_streaming_content(r) for r in response_stream)
+        return chunks
+
+    def extract_streaming_content(gpt_response):
+        return gpt_response.choices[0].delta.content or ""
