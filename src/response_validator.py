@@ -49,47 +49,50 @@ def parse_project_data(input: str):
         "user_stories": user_stories
     }
 
-async def parse_project_data_streaming(chunks: AsyncIterator[str]) -> AsyncIterator[ProjectResponse]:
+
+def parse_project_data_streaming(chunk: Iterator[str]) -> Iterator[ProjectResponse]:
+    line = ""
     project_title = description = ""
     technical_requirements = []
     user_stories = []
     current_section = None
 
-    async for chunk in chunks:
-        lines = chunk.strip().split('\n')
-        for line in lines:
-            if line is None:
-                continue
-            if line.lower().startswith("project title:"):
-                project_title = line.split(":", 1)[1].strip()
-                current_section = None
-            elif line.lower().startswith("description:"):
-                description = line.split(":", 1)[1].strip()
-                current_section = "description"
-            elif line.lower().startswith("technical requirements:"):
-                current_section = "technical_requirements"
-            elif line.lower().startswith("user stories:"):
-                current_section = "user_stories"
-            elif current_section == "description" and not line.lower().startswith("description:"):
-                description += " " + line.strip()
-            elif current_section in ["technical_requirements", "user_stories"]:
-                if re.match(r"(\d+\)|\d+\.\s|[\•\*\-])", line.strip()):
-                    item = re.sub(r"^\d+\)|^\d+\.\s|[\•\*\-]", "", line).strip()
-                    if current_section == "technical_requirements":
-                        technical_requirements.append(item)
-                    else:
-                        user_stories.append(item)
-            if current_section == "user_stories" and line == "":
-                yield ProjectResponse(
-                                    project_title=project_title,
-                                    description=description,
-                                    technical_requirements=technical_requirements,
-                                    user_stories=user_stories
-                                )
+    lines = chunk.split("\n")
+
+    line += lines[0]
+    print (line)
+    if line.lower().startswith("project title:") and len(lines) > 1:
+        project_title = line.split(":", 1)[1].strip()
+        current_section = None
+    elif line.lower().startswith("description:"):
+        description = line.split(":", 1)[1].strip()
+        current_section = "description"
+    elif line.lower().startswith("technical requirements:"):
+        current_section = "technical_requirements"
+    elif line.lower().startswith("user stories:"):
+        current_section = "user_stories"
+    elif current_section == "description" and not line.lower().startswith("description:"):
+        description += " " + line.strip()
+    elif current_section in ["technical_requirements", "user_stories"]:
+        if re.match(r"(\d+\)|\d+\.\s|[\•\*\-])", line.strip()):
+            item = re.sub(r"^\d+\)|^\d+\.\s|[\•\*\-]", "", line).strip()
+            if current_section == "technical_requirements":
+                technical_requirements.append(item)
+            else:
+                user_stories.append(item)
+        if current_section == "user_stories" and line == "":
+            yield ProjectResponse(
+                                project_title=project_title,
+                                description=description,
+                                technical_requirements=technical_requirements,
+                                user_stories=user_stories
+                            )
             project_title = description = ""
             technical_requirements = []
             user_stories = []
             current_section = None
+        if len(lines) > 1:
+            line = lines[1]
 
 def validate_response(input: str) -> ProjectResponse:
     parsed_data = parse_project_data(input)

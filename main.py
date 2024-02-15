@@ -28,7 +28,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @limiter.limit("5/minute")
 async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
     print(user_input)
-    config = Config("TogetherAi")
+    config = Config("JanAi")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
@@ -52,22 +52,23 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
         except Exception as e:
             raise HTTPException(status_code=500, detail="An error occurred while processing the prompt.")
 
+
 @app.websocket("/promptstreaming")
 @limiter.limit("5/minute")
 async def run_prompt_streaming(websocket: WebSocket):
     await websocket.accept()
     data = await websocket.receive_text()
     user_input = TechList.parse_raw(data)
-    config = Config("OpenAI")
+    config = Config("JanAi")
     provider = LLMProvider(config)
     client = Client(provider)
     prompt_engine = PromptEngine(user_input)
     system_message = prompt_engine.create_system_message(json=False)
     user_prompt = prompt_engine.create_prompt()
     response_stream = client.streaming_prompt(user_prompt, system_message, full_response=False, json_mode=False)
-
-    async for chunk in response_stream:
-        async for parsed_response in parse_project_data_streaming([chunk]):
+    for chunk in response_stream:
+        # print(chunk) # This actually prints the output!
+        for parsed_response in parse_project_data_streaming(chunk):
             await websocket.send_json(parsed_response.dict())
     await websocket.close()
 

@@ -1,6 +1,10 @@
 from openai import OpenAI
 from src.config import Config
 
+def extract_streaming_content(gpt_response):
+    return gpt_response.choices[0].delta.content or ""
+
+
 class LLMProvider:
     def __init__(self, config: Config):
         self.url = config.url
@@ -44,8 +48,5 @@ class Client:
         if json_mode:
             request_args["response_format"] = {"type": "json_object"}
         response_stream = self.client.chat.completions.create(**request_args)
-        chunks = (self.extract_streaming_content(r) for r in response_stream)
-        return chunks
-
-    def extract_streaming_content(gpt_response):
-        return gpt_response.choices[0].delta.content or ""
+        for r in response_stream:
+            yield extract_streaming_content(r)
