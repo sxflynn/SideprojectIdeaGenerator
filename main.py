@@ -54,7 +54,6 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
 
 
 @app.websocket("/promptstreaming")
-@limiter.limit("5/minute")
 async def run_prompt_streaming(websocket: WebSocket):
     await websocket.accept()
     data = await websocket.receive_text()
@@ -67,7 +66,7 @@ async def run_prompt_streaming(websocket: WebSocket):
     user_prompt = prompt_engine.create_prompt()
     response_stream = client.streaming_prompt(user_prompt, system_message, full_response=False, json_mode=False)
     for chunk in response_stream:
-        # print(chunk) # This actually prints the output!
+        print(chunk) # This actually prints the output!
         for parsed_response in parse_project_data_streaming(chunk):
             await websocket.send_json(parsed_response.dict())
     await websocket.close()
