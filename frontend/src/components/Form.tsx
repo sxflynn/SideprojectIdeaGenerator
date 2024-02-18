@@ -115,7 +115,8 @@ export function Form({ onFormSubmit }: FormProps) {
       topics: values.topics,
     };
 
-    const ws = new WebSocket(`ws://${import.meta.env.VITE_LLM_BASE_URL}/promptstreaming`);
+    const baseUrl = import.meta.env.VITE_LLM_BASE_URL.replace(/^http(s?):\/\//, ''); // fixes ws:// prepend bug
+    const ws = new WebSocket(`ws://${baseUrl}/promptstreamingnew`); 
     ws.onopen = () => {
       ws.send(JSON.stringify(payload));
     };
