@@ -60,7 +60,6 @@ def parse_project_data_streaming(chunk: Iterator[str]) -> Iterator[ProjectRespon
     lines = chunk.split("\n")
 
     line += lines[0]
-    print (line)
     if line.lower().startswith("project title:") and len(lines) > 1:
         project_title = line.split(":", 1)[1].strip()
         current_section = None
