@@ -1,14 +1,12 @@
-from ast import Dict
 import re
-from typing_extensions import Annotated
-from typing import List, Iterator, AsyncIterator
-from pydantic import BaseModel, StringConstraints, constr, conlist
+from typing import List, Iterator
+from pydantic import BaseModel
 
 class ProjectResponse(BaseModel):
-    project_title: Annotated[str, StringConstraints(min_length=1)]
-    description: Annotated[str, StringConstraints(min_length=1)]
-    technical_requirements: conlist(item_type=Annotated[str, StringConstraints(min_length=1)], min_length=1)
-    user_stories: conlist(item_type=Annotated[str, StringConstraints(min_length=1)], min_length=1)
+    project_title: str
+    description: str
+    technical_requirements: List[str]
+    user_stories: List[str]
 
 class TechList(BaseModel):
     unknown_tech: List[str]
@@ -50,35 +48,40 @@ def parse_project_data(input: str):
     }
 
 
-def parse_project_data_streaming(chunk: Iterator[str]) -> Iterator[ProjectResponse]:
+def extract_content(gpt_response):
+    return gpt_response.choices[0].delta.content or ""
+
+def parse_project_data_streaming(chunks: Iterator[str]) -> Iterator[ProjectResponse]:
     line = ""
     project_title = description = ""
     technical_requirements = []
     user_stories = []
     current_section = None
 
-    lines = chunk.split("\n")
-
-    line += lines[0]
-    if line.lower().startswith("project title:") and len(lines) > 1:
-        project_title = line.split(":", 1)[1].strip()
-        current_section = None
-    elif line.lower().startswith("description:"):
-        description = line.split(":", 1)[1].strip()
-        current_section = "description"
-    elif line.lower().startswith("technical requirements:"):
-        current_section = "technical_requirements"
-    elif line.lower().startswith("user stories:"):
-        current_section = "user_stories"
-    elif current_section == "description" and not line.lower().startswith("description:"):
-        description += " " + line.strip()
-    elif current_section in ["technical_requirements", "user_stories"]:
-        if re.match(r"(\d+\)|\d+\.\s|[\•\*\-])", line.strip()):
-            item = re.sub(r"^\d+\)|^\d+\.\s|[\•\*\-]", "", line).strip()
-            if current_section == "technical_requirements":
-                technical_requirements.append(item)
-            else:
-                user_stories.append(item)
+    for chunk in chunks:
+        if chunk is None:
+            continue
+        lines = chunk.split("\n")
+        line += lines[0]
+        if line.lower().startswith("project title:") and len(lines) > 1:
+            project_title = line.split(":", 1)[1].strip()
+            current_section = None
+        elif line.lower().startswith("description:"):
+            description = line.split(":", 1)[1].strip()
+            current_section = "description"
+        elif line.lower().startswith("technical requirements:"):
+            current_section = "technical_requirements"
+        elif line.lower().startswith("user stories:"):
+            current_section = "user_stories"
+        elif current_section == "description" and not line.lower().startswith("description:"):
+            description += " " + line.strip()
+        elif current_section in ["technical_requirements", "user_stories"]:
+            if re.match(r"(\d+\)|\d+\.\s|[\•\*\-])", line.strip()):
+                item = re.sub(r"^\d+\)|^\d+\.\s|[\•\*\-]", "", line).strip()
+                if current_section == "technical_requirements":
+                    technical_requirements.append(item)
+                else:
+                    user_stories.append(item)
         if current_section == "user_stories" and line == "":
             yield ProjectResponse(
                                 project_title=project_title,
