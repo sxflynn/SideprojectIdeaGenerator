@@ -92,7 +92,7 @@ export function Form({ onFormSubmit }: FormProps) {
   };
 
 
-  const handleSubmit = async (values: TechList) => {
+  const handleSubmit = (values: TechList) => {
     if (streaming){
       handleStreamingSubmit(values);
     } else {
@@ -116,15 +116,32 @@ export function Form({ onFormSubmit }: FormProps) {
     };
 
     const baseUrl = import.meta.env.VITE_LLM_BASE_URL.replace(/^http(s?):\/\//, ''); // fixes ws:// prepend bug
-    const ws = new WebSocket(`ws://${baseUrl}/promptstreamingnew`); 
+    const ws = new WebSocket(`ws://${baseUrl}/promptstreaming`); 
     ws.onopen = () => {
       ws.send(JSON.stringify(payload));
     };
 
     ws.onmessage = (event) => {
-      const newResponse:ProjectResponse = JSON.parse(event.data);
-      setStreamingResponses((prevResponses) => [...prevResponses, newResponse]);
-    }
+      const newProjectResponse = JSON.parse(event.data); // Parse the JSON data
+  
+      if (newProjectResponse && newProjectResponse.project_title && newProjectResponse.description) {
+        setStreamingResponses((prevResponses) => {
+          const existingIndex = prevResponses.findIndex(response => response.project_title === newProjectResponse.project_title);
+  
+          if (existingIndex === -1) {
+            return [...prevResponses, newProjectResponse];
+          } else {
+            const updatedResponses = [...prevResponses];
+            const existingProject = updatedResponses[existingIndex];
+  
+            existingProject.description += newProjectResponse.description;
+  
+            updatedResponses[existingIndex] = existingProject;
+            return updatedResponses;
+          }
+        });
+      }
+    };
 
     ws.onerror = (event) => {
       setError("WebSocket error, check the console for more details");
@@ -136,7 +153,7 @@ export function Form({ onFormSubmit }: FormProps) {
       if (streamingResponses.length > 0) {
         onFormSubmit(streamingResponses[streamingResponses.length - 1]);
       }
-    }
+    };
 
   }
 
