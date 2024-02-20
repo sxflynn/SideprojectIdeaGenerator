@@ -47,6 +47,4 @@ class Client:
         }
         if json_mode:
             request_args["response_format"] = {"type": "json_object"}
-        response_stream = self.client.chat.completions.create(**request_args)
-        for r in response_stream:
-            yield extract_streaming_content(r)
+        return self.client.chat.completions.create(**request_args)
