@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from src.provider_engine import LLMProvider, Client
 from src.prompt_engine import PromptEngine
 from src.config import Config
-from src.response_validator import ProjectResponse, TechList, parse_project_data, parse_project_data_streaming, validate_response
+from src.response_validator import ProjectResponse, TechList, parse_project_data, parse_project_data_streaming, validate_response, extract_content
 
 
 load_dotenv()
@@ -52,12 +52,12 @@ async def run_prompt(user_input:TechList, request: Request) -> ProjectResponse:
         except Exception as e:
             raise HTTPException(status_code=500, detail="An error occurred while processing the prompt.") from e
 
-
+    
 @app.websocket("/promptstreaming")
-async def run_prompt_streaming(websocket: WebSocket):
+async def run_prompt_streaming_new(websocket: WebSocket) -> ProjectResponse:
     await websocket.accept()
     data = await websocket.receive_text()
-    user_input = TechList.parse_raw(data)
+    user_input = TechList.model_validate_json(data)
     config = Config("TogetherAi")
     provider = LLMProvider(config)
     client = Client(provider)
@@ -65,10 +65,11 @@ async def run_prompt_streaming(websocket: WebSocket):
     system_message = prompt_engine.create_system_message(json=False)
     user_prompt = prompt_engine.create_prompt()
     response_stream = client.streaming_prompt(user_prompt, system_message, full_response=False, json_mode=False)
-    for chunk in response_stream:
-        print(chunk) # This actually prints the output!
-        for parsed_response in parse_project_data_streaming(chunk):
-            await websocket.send_json(parsed_response.dict())
+    chunks = (extract_content(r) for r in response_stream)
+    stream = parse_project_data_streaming(chunks)
+    for project_data in stream:
+        print(f"Sending a project: {project_data.model_dump_json()}")
+        await websocket.send_text(project_data.model_dump_json())
     await websocket.close()
 
 @app.post("/test")
