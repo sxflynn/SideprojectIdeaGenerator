@@ -1,4 +1,4 @@
-> ## 🚧 This project is under active development. Please consider contributing!
+> ## This project has ceased active development. PRs will still be accepted.
 
 # Side Project Idea Generator
 Helps software development students generate project ideas based on their skills and interests. The final version of this product will run on the following stack:
